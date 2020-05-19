@@ -67,6 +67,9 @@ ru:
   field_fixed_group: "Добавлять пользователей в группы"
   field_group_prefix: "Добавлять префикс к имени группы"
 
+  field_avatar_attribute: "Аттрибут с фотографией"
+  field_avatar: "Фотография"
+
   field_user_group_fields: "Поля пользователя/группы"
   field_firstname: "Имя"
   field_lastname: "Фамилия"

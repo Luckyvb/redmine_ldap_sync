@@ -110,7 +110,7 @@ module LdapSync::Infectors::AuthSourceLdap
         sync_fields = !is_new_user && (!options[:try_to_login] || setting.sync_fields_on_login?)
 
         user_data, flags = if options[:try_to_login] && setting.has_account_flags? && sync_fields
-          user_data = find_user(ldap, user.login, setting.user_ldap_attrs_to_sync + ns(:account_flags))
+          user_data = find_user(ldap, user.login, setting.user_ldap_attrs_to_sync + ns(:account_flags) + [setting.avatar_attribute])
           [user_data, user_data.present? ? user_data[n(:account_flags)].first : :deleted]
         end
 
@@ -177,9 +177,11 @@ module LdapSync::Infectors::AuthSourceLdap
       def sync_user_fields(user, user_data = nil)
         return unless setting.active? && setting.sync_user_fields?
 
-        user.synced_fields = get_user_fields(user.login, user_data)
+        synced_fields = get_user_fields(user.login, user_data)
+        user.synced_fields = synced_fields
 
         if user.save
+          sync_user_avatar(user,synced_fields)
           user
         else
           error_message = if user.email_is_taken
@@ -190,6 +192,29 @@ module LdapSync::Infectors::AuthSourceLdap
             "#{user.errors.full_messages.join('", "')}"
           end
           error "Could not sync user '#{user.login}': \"#{error_message}\""; nil
+        end
+      end
+
+      def sync_user_avatar(user, fields)
+        image = fields[setting.field_avatar]
+
+        if image.present?
+          av = user.attachments.where(description: 'avatar').first
+          if !av || File.size(av.diskfile) != image.bytesize
+            user.attachments.where(description: 'avatar').destroy_all
+            f = Tempfile.new(['redmine_ldap_avatar_attachment','.jpg'])
+            f.write(image.force_encoding(Encoding::UTF_8))
+            f.rewind
+            attachment = Attachment.new(file: f)
+            attachment.author = user
+            attachment.container_id = user.id
+            attachment.container_type = "Principal"
+            attachment.description = 'avatar'
+            attachment.content_type = 'image/jpeg'
+            attachment.filename = 'avatar_'+user.login+'.jpg'
+            attachment.save
+            f.unlink
+          end
         end
       end
 

@@ -42,6 +42,7 @@ module LdapSync::Infectors::User
     end
 
     def synced_fields=(attrs)
+      #logger.warn(*::User::STANDARD_FIELDS)
       self.attributes = attrs.slice(*::User::STANDARD_FIELDS)
       self.custom_field_values = attrs.except(*::User::STANDARD_FIELDS)
     end

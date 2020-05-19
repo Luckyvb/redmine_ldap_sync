@@ -4,7 +4,7 @@
   <p><%= f.select :sync_on_login, options_for_sync_on_login %></p>
   <p><%= f.text_field :required_group %></p>
   <p><%= f.text_field :admin_group %></p>
-  <p><%= f.text_field :fixed_group, :size => 15  %></p>
+  <p><%= f.text_field :fixed_group  %></p>
   <p><%= f.check_box :create_users %></p>
   <p><%= f.check_box :create_groups %></p>
   <p><%= f.select :dyngroups, options_for_dyngroups %>
@@ -57,6 +57,7 @@
         <% end -%>
       <% end -%>
       <% end -%>
+      <tr><td><%= l(:field_avatar) %></td><td></td><td><%= text_field_tag "ldap_setting[avatar_attribute]", @ldap_setting.avatar_attribute, :size => 12 %></td><td></td></tr>
     </tbody>
     </table>
     </div>

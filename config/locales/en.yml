@@ -66,6 +66,9 @@ en:
   field_admin_group: "Administrators group"
   field_fixed_group: "Add users to group"
 
+  field_avatar_attribute: "Photo ldap attrinute"
+  field_avatar: "Photo"
+
   field_user_group_fields: "User/Group fields"
   field_firstname: "First name"
   field_lastname: "Last name"
