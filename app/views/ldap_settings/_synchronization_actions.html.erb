@@ -57,7 +57,9 @@
         <% end -%>
       <% end -%>
       <% end -%>
-      <tr><td><%= l(:field_avatar) %></td><td></td><td><%= text_field_tag "ldap_setting[avatar_attribute]", @ldap_setting.avatar_attribute, :size => 12 %></td><td></td></tr>
+      <% if Redmine::Plugin.installed?(:redmine_local_avatars) -%>
+        <tr><td><%= l(:field_avatar) %></td><td></td><td><%= text_field_tag "ldap_setting[avatar_attribute]", @ldap_setting.avatar_attribute, :size => 12 %></td><td></td></tr>
+      <% end -%>
     </tbody>
     </table>
     </div>

@@ -110,7 +110,11 @@ module LdapSync::Infectors::AuthSourceLdap
         sync_fields = !is_new_user && (!options[:try_to_login] || setting.sync_fields_on_login?)
 
         user_data, flags = if options[:try_to_login] && setting.has_account_flags? && sync_fields
-          user_data = find_user(ldap, user.login, setting.user_ldap_attrs_to_sync + ns(:account_flags) + [setting.avatar_attribute])
+          if Redmine::Plugin.installed?(:redmine_local_avatars)
+            user_data = find_user(ldap, user.login, setting.user_ldap_attrs_to_sync + ns(:account_flags) + [setting.avatar_attribute])
+          else
+            user_data = find_user(ldap, user.login, setting.user_ldap_attrs_to_sync + ns(:account_flags))
+          end
           [user_data, user_data.present? ? user_data[n(:account_flags)].first : :deleted]
         end
 
@@ -181,7 +185,9 @@ module LdapSync::Infectors::AuthSourceLdap
         user.synced_fields = synced_fields
 
         if user.save
-          sync_user_avatar(user,synced_fields)
+          if Redmine::Plugin.installed?(:redmine_local_avatars)
+            sync_user_avatar(user,synced_fields)
+          end
           user
         else
           error_message = if user.email_is_taken
@@ -313,6 +319,7 @@ module LdapSync::Infectors::AuthSourceLdap
           u.auth_source_id = self.id
         end
 
+        #return nil, false
         if user.save
           return user, true
         else

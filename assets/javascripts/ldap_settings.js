@@ -82,7 +82,7 @@ $(function() {
       $(this).attr('data-params', $('input[name^="ldap_test"]').serialize());
     })
     .bind('ajax:success', function(event, data) {
-      $('#test-result').text(data ?? event.detail[0]);
+      $('#test-result').html(data ?? event.detail[0]);
     })
     .bind('ajax:error', function(event, data) {
       $('#test-result').text("Error!!!");

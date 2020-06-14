@@ -28,23 +28,20 @@ module LdapSync::EntityManager
         fields_to_sync -= (User::STANDARD_FIELDS + custom_fields)
         fields_to_sync += (User::STANDARD_FIELDS + custom_fields)
       end
-      ldap_attrs_to_sync = setting.user_ldap_attrs_to_sync(fields_to_sync) + [setting.avatar_attribute]
-      fields_to_sync = fields_to_sync + [setting.field_avatar]
+      if Redmine::Plugin.installed?(:redmine_local_avatars)
+        ldap_attrs_to_sync = setting.user_ldap_attrs_to_sync(fields_to_sync) + [setting.avatar_attribute]
+        fields_to_sync = fields_to_sync + [setting.field_avatar]
+      end
 
       user_data ||= with_ldap_connection do |ldap|
         find_user(ldap, username, ldap_attrs_to_sync)
       end
       return {} if user_data.nil?
 
-      #Rails.logger.info ldap_attrs_to_sync
-      #Rails.logger.info fields_to_sync
       user_fields = user_data.inject({}) do |fields, (attr, value)|
         f = setting.user_field(attr)
-        #Rails.logger.info "Parsed f:#{f}, #{f.class}; attr:#{attr}; included:#{fields_to_sync.include?(f)}" #if !f.nil?
         if f && (fields_to_sync.include?(f) )
           fields[f] = value.first unless value.nil? || value.first.blank?
-          #fields[f] = "<img src='data:image/png;base64,#{Base64.encode64(value.first)}' />" if f == setting.field_avatar
-          #fields[f] = "image(#{value.first.length()})" if f == setting.field_avatar
         end
         fields
       end

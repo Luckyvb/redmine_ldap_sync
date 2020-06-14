@@ -121,7 +121,11 @@ module LdapSettingsHelper
 
   def user_fields_list(fields, group_changes)
     text = fields.map do |(k, v)|
-      "    #{user_field_name k} = #{v}\n"
+      if Redmine::Plugin.installed?(:redmine_local_avatars)&& k == @ldap_setting.field_avatar.to_s
+        "    #{user_field_name k} = <img src='data:image/png;base64,#{Base64.encode64(v)}' style='max-width:30px;max-height:30px;' />\n"
+      else
+        "    #{user_field_name k} = #{v}"
+      end
     end.join
     groups = group_changes[:added].to_a.inspect
     text << "    #{l(:label_group_plural)} = #{groups}\n"
